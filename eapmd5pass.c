@@ -109,15 +109,12 @@ void assess_packet(char *user, struct pcap_pkthdr *h, u_int8_t *pkt)
 	struct ieee8021x *dot1xhdr;
 	struct ieee8022 *dot2hdr;
 	struct eap_hdr *eaphdr;
-	uint8_t *srcaddrptr, *dstaddrptr, *bssidaddrptr;
-	uint8_t *dot11buf;
+	uint8_t *bssidaddrptr;
 	int plen, poffset;
 	struct eapmd5pass_data *em;
 	extern long pcount;
 
 	em = (struct eapmd5pass_data *)user;
-
-	dot11buf = (pkt + offset);
 
 	if (offset < 0)
 		return;
@@ -150,18 +147,12 @@ void assess_packet(char *user, struct pcap_pkthdr *h, u_int8_t *pkt)
 		return;
 	} else if (dot11->u1.fc.from_ds == 1 && dot11->u1.fc.to_ds == 0) {
 		/* From the DS */
-		srcaddrptr = dot11->addr3;
-		dstaddrptr = dot11->addr1;
 		bssidaddrptr = dot11->addr2;
 	} else if (dot11->u1.fc.from_ds == 0 && dot11->u1.fc.to_ds == 1) {
 		/* To the DS, interesting to us */
-		srcaddrptr = dot11->addr2;
-		dstaddrptr = dot11->addr3;
 		bssidaddrptr = dot11->addr1;
 	} else { /* fromds = 0, tods = 0 */
 		/* Ad-hoc, can this be used with PEAP? */
-		srcaddrptr = dot11->addr2;
-		dstaddrptr = dot11->addr1;
 		bssidaddrptr = dot11->addr3;
 	}
 
