@@ -1,0 +1,90 @@
+eapmd5pass - offline EAP-MD5 dictionary attack.
+
+Copyright(c) 2007-2008, Joshua Wright <jwright@hasborg.com>
+
+--------------------------------------------------------------------------------
+
+EAP-MD5 is a legacy authentication mechanism that does not provide sufficient
+protection for user authentication credentials.  Users who authenticate using
+EAP-MD5 subject themselves to an offline dictionary attack vulnerability.
+
+This tool reads from a live network interface in monitor-mode, or from a
+stored libpcap capture file, and extracts the portions of the EAP-MD5 
+authentication exchange.  Once the challenge and response portions have been
+collected from this exchange, eapmd5pass will mount an offline dictionary
+attack against the user's password.
+
+
+SAMPLE CAPTURES
+
+The following sample EAP-MD5 packet captures have the corresponding
+passwords:
+
+File				Password
+----				--------
+eapmd5-sample.dump		beaVIs
+EAPMD5-Challenge-01.cap		bradtest
+brad.eaptest.cap		bradtest
+bra.eaptest2.cap		bradtest
+
+
+USE NOTES
+
+Normal operation of this tool will be to specify a dictionary file of words
+to use as potential passwords, one per line, along with a packet capture file
+from wireless network of an EAP-MD5 exchange, as shown below:
+
+
+$ ./eapmd5pass -w dict -r eapmd5-sample.dump 
+eapmd5pass - Dictionary attack against EAP-MD5
+Collected all data necessary to attack password for "jwright", starting attack.
+User password is "beaVIs".
+3917111 passwords in 6.55 seconds: 598165.01 passwords/second.
+
+
+However, there may be cases where mounting an EAP-MD5 attack is necessary
+even when a packet capture is not available.  If you have observed an EAP-MD5
+exchange but do not have the data in a wireless packet capture that is 
+understood by this tool, you can manually specify the following parameters
+as command-line arguments:
+
+	+ username
+	+ EAP challenge (16 bytes)
+	+ EAP response (16 bytes)
+	+ EAP Id of the EAP response frame (usually "2")
+	+ Dictionary file
+
+An example of using eapmd5pass in this manner is shown below:
+
+
+$ ./eapmd5pass -w dict -U jwright -C d7:ec:2f:ff:2a:da:43:7f:9d:cd:4e:3b:0d:f4:4d:50 -R 1f:fc:6c:26:59:bc:5b:b9:41:44:fd:01:eb:75:6e:37 -E 2
+eapmd5pass - Dictionary attack against EAP-MD5
+User password is "beaVIs".
+3917111 passwords in 7.05 seconds: 555990.03 passwords/second.
+
+
+Note that this tool isn't particularly useful; with no native supplicant
+support for EAP-MD5 in Microsoft Windows, and the lack of support for 
+encryption in an EAP-MD5 network, it is rare to see EAP-MD5 in use.  However,
+the Windows IAS server has support for EAP-MD5 enabled by default, so it is
+conceivable that a user could setup their own workstation to use this
+protocol, unaware of the risks associated with this EAP type.  It should be
+noted that the Funk Odyssey and Mac OS X supplicants both support EAP-MD5
+authentication.
+
+Why did I write this?  I'm not sure.  It's possible that I wrote this during a
+chrono-synclastic infundibulum experience, where it may have meant more to me
+at the time.
+
+
+THANKS
+
+Special thanks to Brad Antoniewicz for his patches and additional test
+capture files.
+
+Special thanks to Dhiru Kholia for identifying some security bugs and for
+supplying fixes (CVE-2017-11668, CVE-2017-11669, and CVE-2017-11670)!
+
+COMMENTS/QUESTIONS/CONCERNS?
+
+Please contact me at jwright@hasborg.com.  Thanks!
